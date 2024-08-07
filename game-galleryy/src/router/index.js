@@ -22,7 +22,7 @@ const routes = [
   },
 
   {
-    path: '/game-view',
+    path: '/game/:Name',
     name: 'game-view',
     
     component: () => import( '../views/GameView.vue'),

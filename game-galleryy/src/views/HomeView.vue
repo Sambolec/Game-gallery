@@ -6,13 +6,13 @@
         <p class="subtitle">Game Gallery</p>
       </div>
       <nav class="nav">
-        <a href="/" class="nav-link active">Home page</a>
-        <a href="/goats" class="nav-link">The Goats</a>
-        <a href="/hot" class="nav-link hot">Hot right now!!</a>
+        <router-link to="/" class="nav-link active">Home page</router-link>
+        <router-link to="/goats" class="nav-link">The Goats</router-link>
+        <router-link to="/hot" class="nav-link hot">Hot right now!!</router-link>
         <button @click="$store.dispatch('logout')">Logout</button>
-        <a href="/profile" class="nav-link profile">
+        <router-link to="/profile" class="nav-link profile">
           <img src="path/to/profile/icon" alt="Profile" class="profile-icon"/>
-        </a>
+        </router-link>
       </nav>
     </header>
     <main class="search-section">
@@ -27,21 +27,57 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/firebase';
 
 export default {
   name: 'HomeView',
   setup() {
     const searchQuery = ref('');
+    const router = useRouter();
+    const route = useRoute();
+    const game = ref(null);
+    const loading = ref(true);
 
     const search = () => {
-      console.log(`Searching for: ${searchQuery.value}`);
-      // funkcionalnost za search tu
+      if (searchQuery.value.trim()) {
+        router.push({ name: 'game-view', params: { Name: searchQuery.value } });
+      }
     };
+
+    const fetchGameDetails = async () => {
+      try {
+        const gameName = route.params.Name;
+        const gamesRef = collection(db, 'video-games');
+        const q = query(gamesRef, where('Name', '==', gameName));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          game.value = querySnapshot.docs[0].data();
+        } else {
+          console.error('No such game found!');
+        }
+      } catch (error) {
+        console.error('Error fetching game details:', error);
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    onMounted(() => {
+      if (route.params.Name) {
+        fetchGameDetails();
+      }
+    });
 
     return {
       searchQuery,
       search,
+      game,
+      loading,
+      fetchGameDetails,
     };
   },
 };
@@ -49,7 +85,6 @@ export default {
 
 <style scoped>
 .home-container {
-  
   background-color: #1c1c1c;
   color: white;
   min-height: 100vh;
@@ -157,5 +192,3 @@ export default {
   cursor: pointer;
 }
 </style>
-
-

@@ -1,8 +1,6 @@
 <template>
   <nav v-if="$store.state.user">
-    
-    
-    
+    <!-- Add your navigation links or other authenticated user content here -->
   </nav>
   <router-view/>
 </template>
@@ -10,28 +8,33 @@
 <script>
 import { onBeforeMount } from 'vue';
 import { useStore } from 'vuex';
-import {db} from '@/firebase'
-import { doc, getDoc } from "firebase/firestore";
-
-const docRef = doc(db, "video-games", "Sot");
-const docSnap = await getDoc(docRef);
-
-if (docSnap.exists()) {
-  console.log("Video game:", docSnap.data());
-} else {
-  // docSnap.data() will be undefined in this case
-  console.log("Game not found.");
-}
+import { db } from '@/firebase';
+import { collection, query, getDocs } from 'firebase/firestore';
 
 export default {
   setup() {
-    const store =useStore()
+    const store = useStore();
 
     onBeforeMount(() => {
-      store.dispatch('fetchUser')
-    })
-    
-}
+      store.dispatch('fetchUser');
+    });
+
+    // Function to fetch all games for initial load
+    const fetchGames = async () => {
+      const gamesRef = collection(db, "video-games");
+      const q = query(gamesRef);
+      const querySnapshot = await getDocs(q);
+      const games = [];
+      querySnapshot.forEach((doc) => {
+        games.push(doc.data());
+        console.log(doc.id, " => ", doc.data());
+      });
+      store.commit('SET_GAMES', games);
+    };
+
+    // Fetch games on mount
+    fetchGames();
+  }
 }
 </script>
 
