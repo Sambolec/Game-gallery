@@ -9,7 +9,7 @@
         <router-link to="/" class="nav-link">Home page</router-link>
         <router-link to="/goats" class="nav-link">The Goats</router-link>
         <router-link to="/hot" class="nav-link hot">Hot right now!!</router-link>
-        <button @click="$store.dispatch('logout')">Logout</button>
+        <button @click="$store.dispatch('logout')" class="nav-link logout-button">Logout</button>
         <router-link to="/profile" class="nav-link profile">
           <img src="path/to/profile/icon" alt="Profile" class="profile-icon"/>
         </router-link>
@@ -196,4 +196,24 @@ export default {
   cursor: pointer;
   font-size: 16px;
 }
+.logout-button {
+  background-color: red;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #d40000; /* Darker red on hover */
+}
+
+.logout-button:focus {
+  outline: none;
+  box-shadow: 0 0 4px red;
+}
+
 </style>

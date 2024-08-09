@@ -4,18 +4,13 @@
   </nav>
   <router-view/>
 
-  
-
   <!-- Display images -->
-  
-    
-    <div v-for="image in images" :key="image.id" class="image-item">
-      <img :src="image.url" alt="Uploaded Image" />
-      <p>Description: {{ game.Description }}</p>
-      <p>Released: {{ game.Released }}</p>
-      <p>Developed by: {{ game.Developer }}</p>
-    </div>
-  
+  <div v-for="image in images" :key="image.id" class="image-item">
+    <img :src="image.url" alt="Uploaded Image" />
+    <p>Description: {{ game.Description }}</p>
+    <p>Released: {{ game.Released }}</p>
+    <p>Developed by: {{ game.Developer }}</p>
+  </div>
 </template>
 
 <script>
@@ -142,16 +137,24 @@ export default {
 </script>
 
 <style>
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #1c1c1c; /* match the background color of your app */
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: fill;
-  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   text-align: center;
   color: #2c3e50;
 }
 
 nav {
-  padding: 0px;
+  padding: 0;
 }
 
 nav a {
