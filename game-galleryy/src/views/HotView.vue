@@ -1,26 +1,67 @@
 <template>
-  <div class="home-container">
+  <div class="hot-container">
     <header class="header">
       <div class="logo">
         <h1 class="title">GG</h1>
         <p class="subtitle">Game Gallery</p>
       </div>
       <nav class="nav">
-        <a href="/" class="nav-link active">Home page</a>
-        <a href="/goats" class="nav-link">The Goats</a>
-        <a href="/hot" class="nav-link hot">Hot right now!!</a>
+        <router-link to="/" class="nav-link">Home page</router-link>
+        <router-link to="/goats" class="nav-link">The Goats</router-link>
+        <router-link to="/hot" class="nav-link active hot">Hot right now!!</router-link>
         <button @click="$store.dispatch('logout')">Logout</button>
-        <a href="/profile" class="nav-link profile">
+        <router-link to="/profile" class="nav-link profile">
           <img src="path/to/profile/icon" alt="Profile" class="profile-icon"/>
-        </a>
+        </router-link>
       </nav>
-      </header>
+    </header>
+
+    <main class="games-grid">
+      <div v-for="game in games" :key="game.id" class="game-card">
+        <router-link :to="{ name: 'game-view', params: { Name: game.Name } }">
+          <img :src="game.url" :alt="game.Name" class="game-image"/>
+          <p class="game-title">{{ game.Name }}</p>
+        </router-link>
       </div>
-      </template>
+    </main>
+  </div>
+</template>
+
+<script>
+import { ref, onMounted } from 'vue';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/firebase';
+
+export default {
+  name: 'HotView',
+  setup() {
+    const games = ref([]);
+
+    const fetchHotGames = async () => {
+      try {
+        const hotGames = ['The First Descendant', 'EA Sports College Football 25', 'Once Human'];
+        const gamesRef = collection(db, 'video-games');
+        const q = query(gamesRef, where('Name', 'in', hotGames));
+        const querySnapshot = await getDocs(q);
+        games.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } catch (error) {
+        console.error('Error fetching hot games:', error);
+      }
+    };
+
+    onMounted(() => {
+      fetchHotGames();
+    });
+
+    return {
+      games,
+    };
+  },
+};
+</script>
 
 <style scoped>
-.home-container {
-  
+.hot-container {
   background-color: #1c1c1c;
   color: white;
   min-height: 100vh;
@@ -84,24 +125,34 @@
   height: 30px;
 }
 
-
-
-.main-title {
-  font-size: 48px;
-  color: red;
-  margin: 0;
+.games-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+  width: 80%;
 }
 
-.main-subtitle {
-  font-size: 16px;
+.game-card {
+  margin: 15px;
+  text-align: center;
+}
+
+.game-image {
+  width: 200px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.3s;
+}
+
+.game-image:hover {
+  transform: scale(1.05);
+}
+
+.game-title {
   color: white;
-  margin: 0;
+  font-size: 18px;
+  margin-top: 10px;
 }
-
-
-
-
-
-
-
 </style>

@@ -3,17 +3,40 @@
     <!-- Add your navigation links or other authenticated user content here -->
   </nav>
   <router-view/>
+
+  
+
+  <!-- Display images -->
+  
+    
+    <div v-for="image in images" :key="image.id" class="image-item">
+      <img :src="image.url" alt="Uploaded Image" />
+      <p>Description: {{ game.Description }}</p>
+      <p>Released: {{ game.Released }}</p>
+      <p>Developed by: {{ game.Developer }}</p>
+    </div>
+  
 </template>
 
 <script>
-import { onBeforeMount } from 'vue';
+import { onBeforeMount, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
-import { db } from '@/firebase';
-import { collection, query, getDocs } from 'firebase/firestore';
+import { collection, query, getDocs, addDoc, getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db } from '@/firebase'; // Ensure this is correctly configured
 
 export default {
   setup() {
     const store = useStore();
+    const images = ref([]);
+    const newImage = ref({
+      description: '',
+      weight: '',
+      url: '',
+      date: new Date(),
+    });
+    const selectedFile = ref(null);
 
     onBeforeMount(() => {
       store.dispatch('fetchUser');
@@ -32,8 +55,88 @@ export default {
       store.commit('SET_GAMES', games);
     };
 
-    // Fetch games on mount
-    fetchGames();
+    // Handle file selection
+    const onFileChange = (event) => {
+      selectedFile.value = event.target.files[0];
+    };
+
+    // Function to upload the selected image
+    const uploadImage = async () => {
+      if (selectedFile.value) {
+        try {
+          const auth = getAuth();
+          const user = auth.currentUser;
+          if (!user) {
+            throw new Error("User not authenticated");
+          }
+
+          const storage = getStorage();
+          const fileRef = storageRef(storage, `images/${user.uid}/${selectedFile.value.name}`);
+
+          // Upload the file to Firebase Storage
+          await uploadBytes(fileRef, selectedFile.value);
+
+          // Get the download URL
+          const downloadURL = await getDownloadURL(fileRef);
+
+          // Store the URL in Firestore
+          const { description, weight, date } = newImage.value;
+          const docRef = await addDoc(collection(getFirestore(), 'users', user.uid, 'images'), {
+            description,
+            weight,
+            url: downloadURL,
+            date,
+          });
+
+          newImage.value.id = docRef.id;
+          images.value.push({ ...newImage.value, id: docRef.id, url: downloadURL });
+          resetForm();
+          console.log("Image uploaded and URL saved to Firestore!");
+        } catch (error) {
+          console.error("Error uploading image:", error);
+        }
+      } else {
+        console.error("No file selected");
+      }
+    };
+
+    // Function to load images
+    const loadImages = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          const imageCollection = collection(getFirestore(), 'users', user.uid, 'images');
+          const snapshot = await getDocs(imageCollection);
+          images.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (error) {
+          console.error('Error loading images:', error);
+        }
+      }
+    };
+
+    const resetForm = () => {
+      newImage.value = {
+        description: '',
+        weight: '',
+        url: '',
+        date: new Date(),
+      };
+      selectedFile.value = null;
+    };
+
+    // Fetch games and load images on mount
+    onMounted(() => {
+      fetchGames();
+      loadImages();
+    });
+
+    return {
+      newImage,
+      images,
+      onFileChange,
+      uploadImage,
+    };
   }
 }
 </script>
@@ -58,5 +161,22 @@ nav a {
 
 nav a.router-link-exact-active {
   color: #42b983;
+}
+
+.image-upload-section {
+  margin: 20px 0;
+}
+
+.images-list {
+  margin-top: 20px;
+}
+
+.image-item {
+  margin-bottom: 20px;
+}
+
+.image-item img {
+  max-width: 100%;
+  height: auto;
 }
 </style>

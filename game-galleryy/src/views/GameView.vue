@@ -17,7 +17,7 @@
     </header>
     <main class="game-details-section">
       <div v-if="game" class="game-info">
-        <img :src="game.imageUrl" alt="Game Image" class="game-image"/>
+        <img :src="game.url" alt="Game Image" class="game-image"/>
         <h2>{{ game.Name }}</h2>
         <p>Release date: {{ game.Released }}</p>
         <p>Developed by: {{ game.Developer }}</p>
@@ -49,13 +49,13 @@ export default {
 
     const fetchGameDetails = async () => {
       try {
-        const gameName = route.params.Name;
+        const gameName = route.params.Name; // Dynamically set game name from route parameters
         const gamesRef = collection(db, 'video-games');
         const q = query(gamesRef, where('Name', '==', gameName));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-          game.value = querySnapshot.docs[0].data();
+          game.value = querySnapshot.docs[0].data(); // Retrieve game data
         } else {
           console.error('No such game found!');
         }
@@ -154,7 +154,7 @@ export default {
 }
 
 .game-image {
-  width: 100%;
+  width: 50%;
   border-radius: 10px;
 }
 
