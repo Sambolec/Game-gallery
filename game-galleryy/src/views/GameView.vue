@@ -10,9 +10,7 @@
         <router-link to="/goats" class="nav-link">The Goats</router-link>
         <router-link to="/hot" class="nav-link hot">Hot right now!!</router-link>
         <button @click="$store.dispatch('logout')" class="nav-link logout-button">Logout</button>
-        <router-link to="/profile" class="nav-link profile">
-          <img src="path/to/profile/icon" alt="Profile" class="profile-icon"/>
-        </router-link>
+        <router-link to="/profile" class="nav-link gallery-button">Your Gallery</router-link>
       </nav>
     </header>
     <main class="game-details-section">
@@ -337,6 +335,26 @@ export default {
 
 .remove-button {
   margin-top: 20px; /* Adds space above the Remove from Library button */
+}
+.gallery-button {
+  background-color: #444; /* Dark gray background */
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.gallery-button:hover {
+  background-color: #555; /* Slightly lighter gray on hover */
+}
+
+.gallery-button:focus {
+  outline: none;
+  box-shadow: 0 0 4px white;
 }
 
 </style>
