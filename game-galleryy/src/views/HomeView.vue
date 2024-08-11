@@ -9,8 +9,9 @@
         <router-link to="/" class="nav-link active">Home page</router-link>
         <router-link to="/goats" class="nav-link">The Goats</router-link>
         <router-link to="/hot" class="nav-link hot">Hot right now!!</router-link>
-        <button @click="$store.dispatch('logout')" class="nav-link logout-button">Logout</button>
+        <button @click="logout" class="nav-link logout-button">Logout</button>
         <router-link to="/profile" class="nav-link gallery-button">Your Gallery</router-link>
+        <router-link v-if="isAdmin" to="/admin" class="nav-link add-game-button">Add New Game</router-link>
       </nav>
     </header>
     <main class="search-section">
@@ -29,6 +30,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/firebase';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 export default {
   name: 'HomeView',
@@ -38,6 +40,8 @@ export default {
     const route = useRoute();
     const game = ref(null);
     const loading = ref(true);
+    const isAdmin = ref(false);
+    const auth = getAuth();
 
     const search = () => {
       if (searchQuery.value.trim()) {
@@ -65,10 +69,25 @@ export default {
     };
 
     onMounted(() => {
+      // Fetch the game details if there's a game name in the route params
       if (route.params.Name) {
         fetchGameDetails();
       }
+
+      // Monitor authentication state
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // Check if the authenticated user is an admin
+          isAdmin.value = user.email === 'admin@admin.com';
+        }
+      });
     });
+
+    const logout = () => {
+      auth.signOut().then(() => {
+        router.push('/');
+      });
+    };
 
     return {
       searchQuery,
@@ -76,6 +95,8 @@ export default {
       game,
       loading,
       fetchGameDetails,
+      isAdmin,
+      logout,
     };
   },
 };
@@ -228,5 +249,16 @@ export default {
   outline: none;
   box-shadow: 0 0 4px white;
 }
+.add-game-button {
+  background-color: red;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 18px;
+  text-decoration: none;
+}
 
+.add-game-button:hover {
+  background-color: #d40000;
+}
 </style>
