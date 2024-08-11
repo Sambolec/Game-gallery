@@ -25,11 +25,21 @@
       </div>
       <div class="game-hub">
         <h2>My hub</h2>
-        <input type="text" placeholder="Progress" class="hub-input"/>
-        <input type="text" placeholder="Rate it!!" class="hub-input"/>
-        <input type="text" placeholder="Status" class="hub-input"/>
-        <textarea placeholder="Leave a note" class="hub-textarea"></textarea>
-        <button class="hub-button">Add to Library</button>
+        <input v-model="progress" type="text" placeholder="Progress" class="hub-input"/>
+        <input v-model="rating" type="text" placeholder="Rate it!!" class="hub-input"/>
+        
+        <!-- Dropdown menu for status -->
+        <select v-model="status" class="hub-input dropdown">
+          <option disabled value="">Select Status</option>
+          <option value="completed">Completed</option>
+          <option value="currently_playing">Currently playing</option>
+          <option value="planning_to_start">Planning to start</option>
+          <option value="dropped">Dropped</option>
+        </select>
+        
+        <textarea v-model="note" placeholder="Leave a note" class="hub-textarea"></textarea>
+        <button @click="addToLibrary" class="hub-button">Add to Library</button>
+        <button v-if="entryExists" @click="removeFromLibrary" class="hub-button remove-button">Remove from Library</button>
       </div>
     </main>
   </div>
@@ -38,14 +48,21 @@
 <script>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebase';
+import { getAuth } from 'firebase/auth';
 
 export default {
   name: 'GameView',
   setup() {
     const route = useRoute();
     const game = ref(null);
+    const progress = ref('');
+    const rating = ref('');
+    const status = ref(''); // Bound to the dropdown
+    const note = ref('');
+    const entryExists = ref(false); // New state to check if the game entry exists
+    const userGameDocId = ref(null); // Store the document ID for the user's game entry
 
     const fetchGameDetails = async () => {
       try {
@@ -64,18 +81,105 @@ export default {
       }
     };
 
+    const fetchUserGameData = async () => {
+      try {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (user) {
+          const userGameRef = collection(db, `users/${user.email}/user-video-games`);
+          const q = query(userGameRef, where('Name', '==', route.params.Name));
+          const querySnapshot = await getDocs(q);
+          
+          if (!querySnapshot.empty) {
+            const userGameData = querySnapshot.docs[0].data();
+            userGameDocId.value = querySnapshot.docs[0].id; // Store document ID
+            entryExists.value = true;
+            progress.value = userGameData.progress || '';
+            rating.value = userGameData.rating || '';
+            status.value = userGameData.Status || '';
+            note.value = userGameData.note || '';
+          } else {
+            entryExists.value = false;
+          }
+        } else {
+          console.error('User not logged in!');
+        }
+      } catch (error) {
+        console.error('Error fetching user game data:', error);
+      }
+    };
+
+    const addToLibrary = async () => {
+      try {
+        if (status.value) {
+          const auth = getAuth();
+          const user = auth.currentUser;
+          if (user) {
+            const libraryRef = collection(db, `users/${user.email}/user-video-games`);
+            await addDoc(libraryRef, {
+              Name: game.value.Name,
+              url: game.value.url,
+              progress: progress.value,
+              rating: rating.value,
+              Status: status.value,
+              note: note.value,
+              addedAt: new Date(),
+            });
+            alert('Game added to your library!');
+            fetchUserGameData(); // Refresh data after adding
+          } else {
+            console.error('User not logged in!');
+          }
+        } else {
+          alert('Please select a status before adding to the library.');
+        }
+      } catch (error) {
+        console.error('Error adding game to library:', error);
+      }
+    };
+
+    const removeFromLibrary = async () => {
+      try {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (user && userGameDocId.value) {
+          const userGameRef = doc(db, `users/${user.email}/user-video-games`, userGameDocId.value);
+          await deleteDoc(userGameRef);
+          alert('Game removed from your library!');
+          entryExists.value = false;
+          progress.value = '';
+          rating.value = '';
+          status.value = '';
+          note.value = '';
+        } else {
+          console.error('User not logged in or document ID not found!');
+        }
+      } catch (error) {
+        console.error('Error removing game from library:', error);
+      }
+    };
+
     onMounted(() => {
       fetchGameDetails();
+      fetchUserGameData(); // Fetch user's saved data for the game
     });
 
     return {
       game,
+      progress,
+      rating,
+      status,
+      note,
+      entryExists,
+      addToLibrary,
+      removeFromLibrary, // Return the remove function
     };
   },
 };
 </script>
 
 <style scoped>
+/* The existing styles remain unchanged */
 .game-view-container {
   background-color: #1c1c1c;
   color: white;
@@ -183,6 +287,11 @@ export default {
   color: white;
 }
 
+.dropdown {
+  background-color: #1c1c1c;
+  color: white;
+}
+
 .hub-textarea {
   resize: none;
 }
@@ -196,6 +305,7 @@ export default {
   cursor: pointer;
   font-size: 16px;
 }
+
 .logout-button {
   background-color: red;
   color: white;
@@ -214,6 +324,19 @@ export default {
 .logout-button:focus {
   outline: none;
   box-shadow: 0 0 4px red;
+}
+.hub-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: red;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.remove-button {
+  margin-top: 20px; /* Adds space above the Remove from Library button */
 }
 
 </style>
