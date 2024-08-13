@@ -1,10 +1,9 @@
 <template>
   <nav v-if="$store.state.user">
-    <!-- Add your navigation links or other authenticated user content here -->
   </nav>
   <router-view/>
 
-  <!-- Display images -->
+  
   <div v-for="image in images" :key="image.id" class="image-item">
     <img :src="image.url" alt="Uploaded Image" />
     <p>Description: {{ game.Description }}</p>
@@ -19,7 +18,7 @@ import { useStore } from 'vuex';
 import { collection, query, getDocs, addDoc, getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db } from '@/firebase'; // Ensure this is correctly configured
+import { db } from '@/firebase'; 
 
 export default {
   setup() {
@@ -37,7 +36,6 @@ export default {
       store.dispatch('fetchUser');
     });
 
-    // Function to fetch all games for initial load
     const fetchGames = async () => {
       const gamesRef = collection(db, "video-games");
       const q = query(gamesRef);
@@ -50,12 +48,10 @@ export default {
       store.commit('SET_GAMES', games);
     };
 
-    // Handle file selection
     const onFileChange = (event) => {
       selectedFile.value = event.target.files[0];
     };
 
-    // Function to upload the selected image
     const uploadImage = async () => {
       if (selectedFile.value) {
         try {
@@ -68,13 +64,10 @@ export default {
           const storage = getStorage();
           const fileRef = storageRef(storage, `images/${user.uid}/${selectedFile.value.name}`);
 
-          // Upload the file to Firebase Storage
           await uploadBytes(fileRef, selectedFile.value);
 
-          // Get the download URL
           const downloadURL = await getDownloadURL(fileRef);
 
-          // Store the URL in Firestore
           const { description, weight, date } = newImage.value;
           const docRef = await addDoc(collection(getFirestore(), 'users', user.uid, 'images'), {
             description,
@@ -95,7 +88,6 @@ export default {
       }
     };
 
-    // Function to load images
     const loadImages = async () => {
       const auth = getAuth();
       const user = auth.currentUser;
@@ -120,7 +112,7 @@ export default {
       selectedFile.value = null;
     };
 
-    // Fetch games and load images on mount
+    
     onMounted(() => {
       fetchGames();
       loadImages();
@@ -142,7 +134,7 @@ html, body, #app {
   padding: 0;
   width: 100%;
   height: 100%;
-  background-color: #1c1c1c; /* match the background color of your app */
+  background-color: #1c1c1c; 
 }
 
 #app {

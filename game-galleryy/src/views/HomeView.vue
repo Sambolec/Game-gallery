@@ -69,15 +69,13 @@ export default {
     };
 
     onMounted(() => {
-      // Fetch the game details if there's a game name in the route params
+      
       if (route.params.Name) {
         fetchGameDetails();
       }
-
-      // Monitor authentication state
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          // Check if the authenticated user is an admin
+         
           isAdmin.value = user.email === 'admin@admin.com';
         }
       });
@@ -222,7 +220,7 @@ export default {
 }
 
 .logout-button:hover {
-  background-color: #d40000; /* Darker red on hover */
+  background-color: #d40000; 
 }
 
 .logout-button:focus {
@@ -230,7 +228,7 @@ export default {
   box-shadow: 0 0 4px red;
 }
 .gallery-button {
-  background-color: #444; /* Dark gray background */
+  background-color: #444; 
   color: white;
   padding: 5px 10px;
   border: none;
@@ -242,7 +240,7 @@ export default {
 }
 
 .gallery-button:hover {
-  background-color: #555; /* Slightly lighter gray on hover */
+  background-color: #555; 
 }
 
 .gallery-button:focus {

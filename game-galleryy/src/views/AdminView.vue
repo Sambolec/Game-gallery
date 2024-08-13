@@ -1,6 +1,5 @@
 <template>
   <div class="admin-container">
-    <!-- Navigation Bar -->
     <header class="header">
       <div class="logo">
         <h1 class="title">GG</h1>
@@ -12,12 +11,11 @@
         <router-link to="/hot" class="nav-link hot">Hot right now!!</router-link>
         <button @click="$store.dispatch('logout')" class="nav-link logout-button">Logout</button>
         <router-link to="/profile" class="nav-link gallery-button">Your Gallery</router-link>
-        <!-- Add a link to Admin page and set it as active -->
+        
         <router-link to="/admin" class="nav-link active">Admin</router-link>
       </nav>
     </header>
 
-    <!-- Admin Page Content -->
     <div class="admin-container-content">
       <div class="game-form">
         <div class="form-section">
@@ -71,15 +69,15 @@ export default {
     const addGame = async () => {
       try {
         const newGameRef = await addDoc(collection(db, 'video-games'), {
-          Name: gameName.value,             // Match the field names to GameView.vue
-          Released: releaseDate.value,      // Match the field names to GameView.vue
-          Developer: developerStudio.value, // Match the field names to GameView.vue
-          Description: description.value,   // Match the field names to GameView.vue
-          url: imagePreview.value || 'default-image-url', // Add the image URL or placeholder
+          Name: gameName.value,             
+          Released: releaseDate.value,      
+          Developer: developerStudio.value, 
+          Description: description.value,   
+          url: imagePreview.value || 'default-image-url', 
         });
         console.log('Game added with ID:', newGameRef.id);
 
-        // Reset the form
+        
         gameName.value = '';
         releaseDate.value = '';
         developerStudio.value = '';
@@ -195,7 +193,6 @@ export default {
   background-color: #d40000;
 }
 
-/* Styles for the Navigation Bar */
 .header {
   width: 100%;
   background-color: #2c2c2c;
@@ -263,7 +260,7 @@ export default {
 }
 
 .logout-button:hover {
-  background-color: #d40000; /* Darker red on hover */
+  background-color: #d40000; 
 }
 
 .logout-button:focus {
@@ -272,7 +269,7 @@ export default {
 }
 
 .gallery-button {
-  background-color: #444; /* Dark gray background */
+  background-color: #444; 
   color: white;
   padding: 5px 10px;
   border: none;
@@ -284,7 +281,7 @@ export default {
 }
 
 .gallery-button:hover {
-  background-color: #555; /* Slightly lighter gray on hover */
+  background-color: #555; 
 }
 
 .gallery-button:focus {

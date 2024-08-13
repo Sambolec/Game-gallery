@@ -163,7 +163,7 @@ export default {
 }
 
 .logout-button:hover {
-  background-color: #d40000; /* Darker red on hover */
+  background-color: #d40000; 
 }
 
 .logout-button:focus {
@@ -171,7 +171,7 @@ export default {
   box-shadow: 0 0 4px red;
 }
 .gallery-button {
-  background-color: #444; /* Dark gray background */
+  background-color: #444; 
   color: white;
   padding: 5px 10px;
   border: none;
@@ -183,7 +183,7 @@ export default {
 }
 
 .gallery-button:hover {
-  background-color: #555; /* Slightly lighter gray on hover */
+  background-color: #555; 
 }
 
 .gallery-button:focus {

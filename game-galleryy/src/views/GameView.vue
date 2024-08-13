@@ -57,20 +57,20 @@ export default {
     const game = ref(null);
     const progress = ref('');
     const rating = ref('');
-    const status = ref(''); // Bound to the dropdown
+    const status = ref(''); 
     const note = ref('');
-    const entryExists = ref(false); // New state to check if the game entry exists
-    const userGameDocId = ref(null); // Store the document ID for the user's game entry
+    const entryExists = ref(false); 
+    const userGameDocId = ref(null); 
 
     const fetchGameDetails = async () => {
       try {
-        const gameName = route.params.Name; // Dynamically set game name from route parameters
+        const gameName = route.params.Name; 
         const gamesRef = collection(db, 'video-games');
         const q = query(gamesRef, where('Name', '==', gameName));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-          game.value = querySnapshot.docs[0].data(); // Retrieve game data
+          game.value = querySnapshot.docs[0].data(); 
         } else {
           console.error('No such game found!');
         }
@@ -90,7 +90,7 @@ export default {
           
           if (!querySnapshot.empty) {
             const userGameData = querySnapshot.docs[0].data();
-            userGameDocId.value = querySnapshot.docs[0].id; // Store document ID
+            userGameDocId.value = querySnapshot.docs[0].id; 
             entryExists.value = true;
             progress.value = userGameData.progress || '';
             rating.value = userGameData.rating || '';
@@ -124,7 +124,7 @@ export default {
               addedAt: new Date(),
             });
             alert('Game added to your library!');
-            fetchUserGameData(); // Refresh data after adding
+            fetchUserGameData(); 
           } else {
             console.error('User not logged in!');
           }
@@ -159,7 +159,7 @@ export default {
 
     onMounted(() => {
       fetchGameDetails();
-      fetchUserGameData(); // Fetch user's saved data for the game
+      fetchUserGameData(); 
     });
 
     return {
@@ -170,14 +170,14 @@ export default {
       note,
       entryExists,
       addToLibrary,
-      removeFromLibrary, // Return the remove function
+      removeFromLibrary, 
     };
   },
 };
 </script>
 
 <style scoped>
-/* The existing styles remain unchanged */
+
 .game-view-container {
   background-color: #1c1c1c;
   color: white;
@@ -316,7 +316,7 @@ export default {
 }
 
 .logout-button:hover {
-  background-color: #d40000; /* Darker red on hover */
+  background-color: #d40000; 
 }
 
 .logout-button:focus {
@@ -334,10 +334,10 @@ export default {
 }
 
 .remove-button {
-  margin-top: 20px; /* Adds space above the Remove from Library button */
+  margin-top: 20px; 
 }
 .gallery-button {
-  background-color: #444; /* Dark gray background */
+  background-color: #444; 
   color: white;
   padding: 5px 10px;
   border: none;
@@ -349,7 +349,7 @@ export default {
 }
 
 .gallery-button:hover {
-  background-color: #555; /* Slightly lighter gray on hover */
+  background-color: #555; 
 }
 
 .gallery-button:focus {
