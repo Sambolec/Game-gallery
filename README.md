@@ -1,3 +1,4 @@
+http://gamegallery-gules.vercel.app
 Naziv aplikacije: Game Gallery
 Opis:
 Game gallery je aplikacija koja služi da korisnici mogu spremati video igre koje su odigrali,planiraju igrati ili su odustali od istih.U suštini aplikacija
